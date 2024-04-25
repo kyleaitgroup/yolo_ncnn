@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <vector>
 #include <iostream>
+#include <chrono>
 int main()
 {
 
@@ -49,7 +50,15 @@ int main()
     // ---------------------------------
  
     cv::Mat frame;
+
+
+
+    double fps = 0.0;
+    std::chrono::steady_clock::time_point start, end;
+    int frameCount = 0;
     while (1) {
+
+        start = std::chrono::steady_clock::now();
 		capture >> frame;//读入视频的帧
 		if (frame.empty()) break;
  
@@ -81,12 +90,22 @@ int main()
             cv::rectangle (frame, cv::Point(boxes[i].x1, boxes[i].y1),
                            cv::Point(boxes[i].x2, boxes[i].y2), cv::Scalar(255, 255, 0), 2, 2, 0);
         }
+
+
+
+           // Calculate FPS
+        end = std::chrono::steady_clock::now();
+        double elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0;
+        fps = 1.0 / elapsedTime;
+
+        // Display FPS on the frame
+        std::string fpsText = "FPS: " + std::to_string((int)fps);
+        cv::putText(frame, fpsText, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 255, 0), 2);
  
         cv:: namedWindow("img",cv::WINDOW_NORMAL);
 		cv:: imshow("img", frame);
  
-        // 保存 视频检测文件
-        // outputVideo.write(frame); //把图像写入视频流
+         frameCount++;
  
 		//按下ESC退出整个程序
   
